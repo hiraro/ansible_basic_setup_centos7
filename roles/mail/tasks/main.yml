@@ -1,0 +1,5 @@
+- name: setup postfix
+  include: postfix.yml
+
+- name: setup dovecot
+  include: dovecot.yml

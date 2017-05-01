@@ -1,0 +1,99 @@
+- name: install postfix
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ postfix_packages }}"
+
+- name: create dhparams
+  shell: openssl dhparam -out dhparams.pem 2048
+  args:
+    chdir: /etc/postfix/
+    creates: /etc/postfix/dhparams.pem
+
+- name: modify config
+  blockinfile:
+    state: present
+    block: "{{ lookup('file', './postfix/main.cf.smtps.template') }}"
+    marker: "### smtps conf ###"
+    dest: "/etc/postfix/main.cf"
+    backup: yes
+
+- name: modify config
+  blockinfile:
+    state: present
+    block: "{{ lookup('file', './postfix/main.cf.sasl.template') }}"
+    marker: "### sasl conf ###"
+    dest: "/etc/postfix/main.cf"
+    backup: no
+
+- name: modify config
+  blockinfile:
+    state: present
+    block: "{{ lookup('file', './postfix/main.cf.smtp-restriction.template') }}"
+    marker: "### smtp restrictions ###"
+    dest: "/etc/postfix/main.cf"
+    backup: no
+
+- name: myhostname
+  lineinfile:
+    backup: no
+    path: /etc/postfix/main.cf
+    state: present
+    insertafter: '#myhostname'
+    regexp: '^myhostname'
+    line: 'myhostname = {{ myhostname }}'
+
+- name: mydomain
+  lineinfile:
+    backup: no
+    path: /etc/postfix/main.cf
+    state: present
+    insertafter: '#mydomain'
+    regexp: '^mydomain'
+    line: 'mydomain = {{ mydomain }}'
+
+- name: myorigin
+  lineinfile:
+    backup: no
+    path: /etc/postfix/main.cf
+    state: present
+    insertafter: '#myorigin'
+    regexp: '^myorigin'
+    line: 'myorigin = {{ myorigin }}'
+
+- name: mydestination
+  lineinfile:
+    backup: no
+    path: /etc/postfix/main.cf
+    state: present
+    insertafter: '#mydestination'
+    regexp: '^mydestination'
+    line: 'mydestination = {{ mydestination }}'
+
+- name: inet_interfaces
+  lineinfile:
+    backup: no
+    path: /etc/postfix/main.cf
+    state: present
+    insertafter: '#inet_interfaces'
+    regexp: '^inet_interfaces'
+    line: 'inet_interfaces = all'
+
+- name: home_mailbox
+  lineinfile:
+    backup: no
+    path: /etc/postfix/main.cf
+    state: present
+    insertafter: '#home_mailbox'
+    regexp: '^home_mailbox'
+    line: 'home_mailbox = Maildir/'
+
+- name: start postfix
+  service:
+    name: postfix
+    state: started
+
+- name: enable postfix
+  service:
+    name: postfix
+    enabled: yes

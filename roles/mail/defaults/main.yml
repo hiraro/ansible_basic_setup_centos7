@@ -1,0 +1,16 @@
+# common config
+postfix_packages:
+  - postfix
+dovecot_packages:
+  - dovecot
+  - cyrus-sasl
+  - cyrus-sasl-devel
+  - cyrus-sasl-md5
+  - cyrus-sasl-plain
+  - cyrus-sasl-sql
+  - cyrus-sasl-lib
+# host specific config
+myhostname: localhost
+mydomain: localhost
+myorigin: '$mydomain'
+mydestination: '$myhostname, localhost.$mydomain, localhost'

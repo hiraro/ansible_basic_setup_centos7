@@ -1,0 +1,5 @@
+- name: setup basic packages
+  include: setup_basic_packages.yml
+
+- name: basic config
+  include: basic_config.yml

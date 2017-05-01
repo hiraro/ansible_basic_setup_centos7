@@ -1,0 +1,17 @@
+- name: update all
+  yum:
+    name: '*'
+    state: latest
+
+- name: install something
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ basic_packages }}"
+
+- name: install something
+  yum:
+    name: "{{ item }}"
+    state: present
+    enablerepo: 'epel'
+  with_items: "{{ basic_packages_epel }}"

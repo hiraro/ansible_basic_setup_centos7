@@ -1,0 +1,33 @@
+# common config
+basic_packages:
+  - epel-release
+  - vim
+  - wget
+  - git
+  - curl
+  - sudo
+  - tmux
+  - man
+  - man-pages
+  - man-pages-ja
+  - mailx
+  - bash-completion
+  - net-tools
+  - bind-utils
+  - chrony
+  - iptables-services
+  - sysstat
+basic_packages_epel:
+  - nkf
+  - monitorix
+lang: LANG=ja_JP.utf8
+timezone: Asia/Tokyo
+histsize: 999999
+histfmt: '%F %T '
+
+# host specific config
+hostname: hoge
+normal_user: sysadmin
+ssh_pub_key: ''
+myip: 0.0.0.0/0
+wan_interface: eth0

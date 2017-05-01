@@ -1,0 +1,24 @@
+disable_vrfy_command = yes
+smtpd_helo_required = yes
+
+smtpd_helo_restrictions =
+        permit_mynetworks
+        reject_unauth_pipelining
+        reject_invalid_helo_hostname
+
+smtpd_sender_restrictions =
+        permit_mynetworks
+        reject_unauth_pipelining
+        reject_non_fqdn_sender
+        reject_unknown_sender_domain
+
+smtpd_recipient_restrictions =
+        permit_mynetworks
+        permit_sasl_authenticated
+        reject_unauth_pipelining
+        reject_non_fqdn_recipient
+        reject_unauth_destination
+
+smtpd_data_restrictions =
+        reject_unauth_pipelining
+        reject_multi_recipient_bounce

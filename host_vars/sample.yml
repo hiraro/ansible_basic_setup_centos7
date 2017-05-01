@@ -1,0 +1,17 @@
+---
+# ansible_connection: ssh
+# ansible_ssh_pass: vagrant
+ansible_connection: local
+ansible_user: vagrant
+ansible_host: 127.0.0.1
+# common
+hostname: example.com
+normal_user: sysadmin
+ssh_pub_key: ssh-rsa hoge
+myip: 0.0.0.0/0
+wan_interface: eth0
+# postfix
+myhostname: localhost
+mydomain: localhost
+myorigin: '$mydomain'
+mydestination: '$myhostname, localhost.$mydomain, localhost'

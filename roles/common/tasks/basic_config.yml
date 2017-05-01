@@ -1,0 +1,143 @@
+- name: set locale
+  shell: localectl set-locale {{ lang }}
+
+- name: set timezone
+  shell: timedatectl set-timezone {{ timezone }}
+
+- name: set hostname
+  shell: hostnamectl set-hostname {{ hostname }}
+
+- name: iptables config
+  template:
+    src: templates/iptables.j2
+    dest: /etc/sysconfig/iptables
+    owner: root
+    group: root
+    mode: 0600
+
+- name: stop firewalld
+  service:
+    name: firewalld
+    state: stopped
+
+- name: disable firewalld
+  service:
+    name: firewalld
+    enabled: no
+
+- name: start iptables-service
+  service:
+    name: iptables
+    state: started
+
+- name: enable iptables-service
+  service:
+    name: iptables
+    enabled: yes
+
+- name: start chronyd
+  service:
+    name: chronyd
+    state: started
+
+- name: enable chronyd
+  service:
+    name: chronyd
+    enabled: yes
+
+- name: disable ipv6
+  sysctl:
+    name: net.ipv6.conf.all.disable_ipv6
+    value: 1
+    state: present
+
+- name: disable ipv6
+  sysctl:
+    name: net.ipv6.conf.default.disable_ipv6
+    value: 1
+    state: present
+
+- name: disable forwarding
+  sysctl:
+    name: net.ipv4.conf.all.forwarding
+    value: 0
+    state: present
+
+- name: disable forwading
+  sysctl:
+    name: net.ipv4.conf.default.forwarding
+    value: 0
+    state: present
+
+- name: disable selinux
+  lineinfile:
+    backup: yes
+    path: /etc/selinux/config
+    regexp: '^SELINUX='
+    line: 'SELINUX=permissive'
+
+- name: bash history size
+  lineinfile:
+    backup: yes
+    path: /etc/profile
+    state: present
+    regexp: '^HISTSIZE='
+    line: 'HISTSIZE={{ histsize }}'
+
+- name: bash history format
+  lineinfile:
+    backup: no
+    path: /etc/profile
+    state: present
+    regexp: '^HISTTIMEFORMAT='
+    line: 'HISTTIMEFORMAT="{{ histfmt }}"'
+
+- name: bash history conf
+  lineinfile:
+    backup: no
+    path: /etc/profile
+    state: present
+    line: 'unset HISTCONTROL'
+
+- name: bash history conf
+  lineinfile:
+    backup: no
+    path: /etc/profile
+    state: present
+    line: 'export HISTSIZE HISTTIMEFORMAT'
+
+- name: sudo without password
+  lineinfile:
+    backup: yes
+    path: /etc/sudoers
+    state: present
+    regexp: '^%wheel\s'
+    line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+
+- name: add normal user
+  user:
+    name: "{{ normal_user }}"
+    shell: /bin/bash
+    group: wheel
+
+- name: setup authorized_keys of the normal user
+  authorized_key:
+    user: "{{ normal_user }}"
+    state: present
+    key: "{{ ssh_pub_key }}"
+
+- name: disable ssh login by root
+  lineinfile:
+    backup: yes
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin no'
+
+- name: disable password auth for ssh
+  lineinfile:
+    backup: no
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: '^PasswordAuthentication'
+    line: 'PasswordAuthentication no'
