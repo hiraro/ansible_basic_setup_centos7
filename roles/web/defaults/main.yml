@@ -14,6 +14,8 @@ nginx_php_packages:
   - php-pear-SOAP
   - php-pear-XML-RPC
   - php-xml
+  - php-pecl-apcu
+  - php-pecl-apcu-bc
   - php-mysqlnd
 # host specific config
 server_name: localhost

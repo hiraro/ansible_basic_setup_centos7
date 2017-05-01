@@ -15,35 +15,27 @@
     group: root
     mode: 0600
 
-- name: stop firewalld
-  service:
-    name: firewalld
-    state: stopped
+- name: monitorix title
+  lineinfile:
+    backup: yes
+    path: /etc/monitorix/monitorix.conf
+    state: present
+    regexp: '^title ='
+    line: 'title = {{ hostname }}'
 
-- name: disable firewalld
-  service:
-    name: firewalld
-    enabled: no
+- name: monitorix hostname
+  lineinfile:
+    backup: yes
+    path: /etc/monitorix/monitorix.conf
+    state: present
+    regexp: '^hostname ='
+    line: 'hostname = {{ hostname }}'
 
-- name: start iptables-service
-  service:
-    name: iptables
-    state: started
-
-- name: enable iptables-service
-  service:
-    name: iptables
-    enabled: yes
-
-- name: start chronyd
-  service:
-    name: chronyd
-    state: started
-
-- name: enable chronyd
-  service:
-    name: chronyd
-    enabled: yes
+- name: monitorix network iface
+  replace:
+    dest: /etc/monitorix/monitorix.conf
+    regexp: 'eth0'
+    replace: '{{ wan_interface }}'
 
 - name: disable ipv6
   sysctl:
@@ -141,3 +133,43 @@
     state: present
     regexp: '^PasswordAuthentication'
     line: 'PasswordAuthentication no'
+
+- name: stop firewalld
+  service:
+    name: firewalld
+    state: stopped
+
+- name: disable firewalld
+  service:
+    name: firewalld
+    enabled: no
+
+- name: start iptables-service
+  service:
+    name: iptables
+    state: started
+
+- name: enable iptables-service
+  service:
+    name: iptables
+    enabled: yes
+
+- name: start chronyd
+  service:
+    name: chronyd
+    state: started
+
+- name: enable chronyd
+  service:
+    name: chronyd
+    enabled: yes
+
+- name: start monitorix
+  service:
+    name: monitorix
+    state: started
+
+- name: enable monitorix
+  service:
+    name: monitorix
+    enabled: yes
