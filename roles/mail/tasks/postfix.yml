@@ -4,6 +4,14 @@
     state: present
   with_items: "{{ postfix_packages }}"
 
+- name: saslauthd mech_list
+  lineinfile:
+    backup: no
+    path: /etc/sasl2/smtpd.conf
+    state: present
+    regexp: '^mech_list'
+    line: 'mech_list: cram-md5 digest-md5 plain login'
+
 - name: create dhparams
   shell: openssl dhparam -out dhparams.pem 2048
   args:
