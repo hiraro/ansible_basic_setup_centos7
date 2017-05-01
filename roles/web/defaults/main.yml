@@ -1,0 +1,21 @@
+# common config
+nginx_packages:
+  - nginx
+nginx_php_repo: remi-php71
+nginx_php_packages:
+  - php
+  - php-fpm
+  - php-mbstring
+  - php-gd
+  - php-json
+  - php-odbc
+  - php-pdo
+  - php-pear
+  - php-pear-SOAP
+  - php-pear-XML-RPC
+  - php-xml
+  - php-mysqlnd
+# host specific config
+server_name: localhost
+server_admin: webmaster@localhost
+doc_root: /var/www/vhosts/localhost/public_html

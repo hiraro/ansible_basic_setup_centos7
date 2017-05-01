@@ -3,3 +3,39 @@
 
 - name: setup dovecot
   include: dovecot.yml
+
+- name: iptables smtp
+  lineinfile:
+    backup: no
+    path: /etc/sysconfig/iptables
+    state: present
+    insertbefore: 'COMMIT'
+    regexp: '^-A INPUT -p tcp -m tcp --dport 25 -j ACCEPT'
+    line: '-A INPUT -p tcp -m tcp --dport 25 -j ACCEPT'
+
+- name: iptables smtp submission
+  lineinfile:
+    backup: no
+    path: /etc/sysconfig/iptables
+    state: present
+    insertbefore: 'COMMIT'
+    regexp: '^-A INPUT -p tcp -m tcp --dport 587 -j ACCEPT'
+    line: '-A INPUT -p tcp -m tcp --dport 587 -j ACCEPT'
+
+- name: iptables pop3
+  lineinfile:
+    backup: no
+    path: /etc/sysconfig/iptables
+    state: present
+    insertbefore: 'COMMIT'
+    regexp: '^-A INPUT -p tcp -m tcp --dport 110 -j ACCEPT'
+    line: '-A INPUT -p tcp -m tcp --dport 110 -j ACCEPT'
+
+- name: iptables imap
+  lineinfile:
+    backup: no
+    path: /etc/sysconfig/iptables
+    state: present
+    insertbefore: 'COMMIT'
+    regexp: '^-A INPUT -p tcp -m tcp --dport 143 -j ACCEPT'
+    line: '-A INPUT -p tcp -m tcp --dport 143 -j ACCEPT'

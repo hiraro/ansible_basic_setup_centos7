@@ -1,0 +1,151 @@
+- name: install nginx
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ nginx_packages }}"
+
+- name: install remi repo
+  yum:
+    name: http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
+    state: present
+
+- name: install php
+  yum:
+    name: "{{ item }}"
+    enablerepo: "{{ nginx_php_repo }}"
+    state: present
+  with_items: "{{ nginx_php_packages }}"
+
+- name: php date.timezone
+  lineinfile:
+    backup: yes
+    path: /etc/php.ini
+    state: present
+    insertafter: ';date.timezone'
+    regexp: '^date.timezone'
+    line: 'date.timezone = "Asia/Tokyo"'
+
+- name: php default_charset
+  lineinfile:
+    backup: no
+    path: /etc/php.ini
+    state: present
+    insertafter: ';default_charset'
+    regexp: '^default_charset'
+    line: 'default_charset = "UTF-8"'
+
+- name: php mbstring.language
+  lineinfile:
+    backup: no
+    path: /etc/php.ini
+    state: present
+    insertafter: ';mbstring.language'
+    regexp: '^mbstring.language'
+    line: 'mbstring.language = "Japanese"'
+
+- name: phpfpm user
+  lineinfile:
+    backup: yes
+    path: /etc/php-fpm.d/www.conf
+    state: present
+    insertafter: ';*user *='
+    regexp: '^user *='
+    line: 'user = nginx'
+
+- name: phpfpm group
+  lineinfile:
+    backup: no
+    path: /etc/php-fpm.d/www.conf
+    state: present
+    insertafter: ';*group *='
+    regexp: '^group *='
+    line: 'group = nginx'
+
+- name: phpfpm listen.owner
+  lineinfile:
+    backup: yes
+    path: /etc/php-fpm.d/www.conf
+    state: present
+    insertafter: ';*listen.owner'
+    regexp: '^listen.owner'
+    line: 'listen.owner = nginx'
+
+- name: phpfpm listen.group
+  lineinfile:
+    backup: no
+    path: /etc/php-fpm.d/www.conf
+    state: present
+    insertafter: ';*listen.group'
+    regexp: '^listen.group'
+    line: 'listen.group = nginx'
+
+- name: phpfpm listen
+  lineinfile:
+    backup: no
+    path: /etc/php-fpm.d/www.conf
+    state: present
+    insertafter: ';*listen *='
+    regexp: '^listen *='
+    line: 'listen = /var/run/php-fpm.sock'
+
+- name: create document root
+  file:
+    path: "{{ doc_root }}"
+    state: directory
+    recurse: yes
+    owner: nginx
+    group: nginx
+    mode: 0775
+
+- name: nginx.conf
+  template:
+    backup: yes
+    src: templates/nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: www.conf
+  template:
+    backup: yes
+    src: templates/www.conf.j2
+    dest: /etc/nginx/conf.d/www.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: php-fpm.conf
+  template:
+    backup: yes
+    src: templates/php-fpm.conf.j2
+    dest: /etc/nginx/default.d/php-fpm.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: create dhparam
+  shell: openssl dhparam -out dhparams.pem 2048
+  args:
+    chdir: /etc/nginx/
+    creates: /etc/nginx/dhparams.pem
+
+- name: start nginx
+  service:
+    name: nginx
+    state: started
+
+- name: enable nginx
+  service:
+    name: nginx
+    enabled: yes
+
+- name: start php-fpm
+  service:
+    name: php-fpm
+    state: started
+
+- name: enable php-fpm
+  service:
+    name: php-fpm
+    enabled: yes

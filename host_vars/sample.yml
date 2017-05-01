@@ -15,3 +15,7 @@ myhostname: localhost
 mydomain: localhost
 myorigin: '$mydomain'
 mydestination: '$myhostname, localhost.$mydomain, localhost'
+# nginx
+server_name: localhost
+server_admin: webmaster@localhost
+doc_root: /var/www/vhosts/localhost/public_html

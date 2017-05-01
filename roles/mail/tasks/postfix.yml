@@ -14,7 +14,7 @@
   blockinfile:
     state: present
     block: "{{ lookup('file', './postfix/main.cf.smtps.template') }}"
-    marker: "### smtps conf ###"
+    marker: "### # {mark} ANSIBLE MANAGED BLOCK : SMTPS ###"
     dest: "/etc/postfix/main.cf"
     backup: yes
 
@@ -22,7 +22,7 @@
   blockinfile:
     state: present
     block: "{{ lookup('file', './postfix/main.cf.sasl.template') }}"
-    marker: "### sasl conf ###"
+    marker: "### # {mark} ANSIBLE MANAGED BLOCK : SASL ###"
     dest: "/etc/postfix/main.cf"
     backup: no
 
@@ -30,7 +30,7 @@
   blockinfile:
     state: present
     block: "{{ lookup('file', './postfix/main.cf.smtp-restriction.template') }}"
-    marker: "### smtp restrictions ###"
+    marker: "### # {mark} ANSIBLE MANAGED BLOCK : SMTP RESTRICTIONS ###"
     dest: "/etc/postfix/main.cf"
     backup: no
 
