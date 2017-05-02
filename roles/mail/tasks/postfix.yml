@@ -24,6 +24,15 @@
     group: root
     mode: 0644
 
+- name: <postfix> modify config (smtp submission)
+  blockinfile:
+    state: present
+    block: "{{ lookup('file', './postfix/master.cf.smtp-submission.template') }}"
+    marker: "### # {mark} ANSIBLE MANAGED BLOCK : SMTP Submission ###"
+    insertafter: "^#submission"
+    dest: "/etc/postfix/master.cf"
+    backup: yes
+
 - name: <postfix> modify config (smtps)
   blockinfile:
     state: present

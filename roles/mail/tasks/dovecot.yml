@@ -38,7 +38,7 @@
     state: present
     insertafter: 'auth_mechanisms'
     regexp: '^auth_mechanisms'
-    line: 'auth_mechanisms = digest-md5 cram-md5 plain login'
+    line: 'auth_mechanisms = plain login'
 
 - name: <dovecot> mail_location
   lineinfile:

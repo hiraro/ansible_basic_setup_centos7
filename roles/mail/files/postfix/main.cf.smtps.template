@@ -12,14 +12,12 @@ smtpd_tls_security_level = may
 smtpd_tls_ciphers = medium
 smtpd_tls_exclude_ciphers = aNULL, eNULL, EXPORT, DES, RC4, MD5, PSK, aECDH, EDH-DSS-DES-CBC3-SHA, EDH-RSA-DES-CBC3-SHA, KRB5-DES, CBC3-SHA
 smtpd_tls_loglevel = 1
-smtpd_tls_session_cache_database = btree:/etc/postfix/smtpd_scache
 smtpd_tls_dh1024_param_file = /etc/postfix/dhparams.pem
 
 smtp_tls_security_level = may
 smtp_tls_ciphers = medium
 smtp_tls_exclude_ciphers = aNULL, eNULL, EXPORT, DES, RC4, MD5, PSK, aECDH, EDH-DSS-DES-CBC3-SHA, EDH-RSA-DES-CBC3-SHA, KRB5-DES, CBC3-SHA
 smtp_tls_loglevel = 1
-smtp_tls_session_cache_database = btree:/var/postfix/smtp_scache
 
 smtpd_tls_cert_file = /etc/pki/tls/certs/postfix.pem
 smtpd_tls_key_file = /etc/pki/tls/certs/postfix.pem
