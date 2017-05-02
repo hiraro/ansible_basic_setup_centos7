@@ -1,0 +1,32 @@
+- name: <monitorix> title
+  lineinfile:
+    backup: yes
+    path: /etc/monitorix/monitorix.conf
+    state: present
+    regexp: '^title ='
+    line: 'title = {{ hostname }}'
+
+- name: <monitorix> hostname
+  lineinfile:
+    backup: no
+    path: /etc/monitorix/monitorix.conf
+    state: present
+    regexp: '^hostname ='
+    line: 'hostname = {{ hostname }}'
+
+- name: <monitorix> network interface name
+  replace:
+    backup: no
+    dest: /etc/monitorix/monitorix.conf
+    regexp: 'eth0'
+    replace: '{{ wan_interface }}'
+
+- name: <monitorix> start monitorix
+  service:
+    name: monitorix
+    state: started
+
+- name: <monitorix> enable monitorix
+  service:
+    name: monitorix
+    enabled: yes

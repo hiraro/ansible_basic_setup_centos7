@@ -1,24 +1,30 @@
-- name: install postfix
+- name: <postfix> install postfix
   yum:
     name: "{{ item }}"
     state: present
   with_items: "{{ postfix_packages }}"
 
-- name: saslauthd mech_list
-  lineinfile:
-    backup: no
-    path: /etc/sasl2/smtpd.conf
-    state: present
-    regexp: '^mech_list'
-    line: 'mech_list: cram-md5 digest-md5 plain login'
-
-- name: create dhparams
+- name: <postfix> create dhparams
   shell: openssl dhparam -out dhparams.pem 2048
   args:
     chdir: /etc/postfix/
     creates: /etc/postfix/dhparams.pem
 
-- name: modify config
+- name: <postfix> create dummy cert
+  shell: /etc/pki/tls/certs/make-my-dummy-cert postfix.pem
+  args:
+    chdir: /etc/pki/tls/certs
+    creates: /etc/pki/tls/certs/postfix.pem
+
+- name: <postfix> modify permission of dummy cert
+  file:
+    path: /etc/pki/tls/certs/postfix.pem
+    state: file
+    owner: root
+    group: root
+    mode: 0644
+
+- name: <postfix> modify config (smtps)
   blockinfile:
     state: present
     block: "{{ lookup('file', './postfix/main.cf.smtps.template') }}"
@@ -26,7 +32,7 @@
     dest: "/etc/postfix/main.cf"
     backup: yes
 
-- name: modify config
+- name: <postfix> modify config (sasl auth)
   blockinfile:
     state: present
     block: "{{ lookup('file', './postfix/main.cf.sasl.template') }}"
@@ -34,7 +40,7 @@
     dest: "/etc/postfix/main.cf"
     backup: no
 
-- name: modify config
+- name: <postfix> modify config (smtp restrictions)
   blockinfile:
     state: present
     block: "{{ lookup('file', './postfix/main.cf.smtp-restriction.template') }}"
@@ -42,7 +48,7 @@
     dest: "/etc/postfix/main.cf"
     backup: no
 
-- name: myhostname
+- name: <postfix> myhostname
   lineinfile:
     backup: no
     path: /etc/postfix/main.cf
@@ -51,7 +57,7 @@
     regexp: '^myhostname'
     line: 'myhostname = {{ myhostname }}'
 
-- name: mydomain
+- name: <postfix> mydomain
   lineinfile:
     backup: no
     path: /etc/postfix/main.cf
@@ -60,7 +66,7 @@
     regexp: '^mydomain'
     line: 'mydomain = {{ mydomain }}'
 
-- name: myorigin
+- name: <postfix> myorigin
   lineinfile:
     backup: no
     path: /etc/postfix/main.cf
@@ -69,7 +75,7 @@
     regexp: '^myorigin'
     line: 'myorigin = {{ myorigin }}'
 
-- name: mydestination
+- name: <postfix> mydestination
   lineinfile:
     backup: no
     path: /etc/postfix/main.cf
@@ -78,7 +84,7 @@
     regexp: '^mydestination'
     line: 'mydestination = {{ mydestination }}'
 
-- name: inet_interfaces
+- name: <postfix> inet_interfaces
   lineinfile:
     backup: no
     path: /etc/postfix/main.cf
@@ -87,7 +93,7 @@
     regexp: '^inet_interfaces'
     line: 'inet_interfaces = all'
 
-- name: home_mailbox
+- name: <postfix> home_mailbox
   lineinfile:
     backup: no
     path: /etc/postfix/main.cf
@@ -96,12 +102,22 @@
     regexp: '^home_mailbox'
     line: 'home_mailbox = Maildir/'
 
-- name: start postfix
+- name: <postfix> start postfix
   service:
     name: postfix
     state: started
 
-- name: enable postfix
+- name: <postfix> enable postfix
   service:
     name: postfix
+    enabled: yes
+
+- name: <saslauthd> start saslauthd
+  service:
+    name: saslauthd
+    state: started
+
+- name: <saslauthd> enable saslauthd
+  service:
+    name: saslauthd
     enabled: yes

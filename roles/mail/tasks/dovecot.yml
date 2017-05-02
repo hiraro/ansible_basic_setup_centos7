@@ -1,10 +1,10 @@
-- name: install dovecot
+- name: <dovecot> install dovecot
   yum:
     name: "{{ item }}"
     state: present
   with_items: "{{ dovecot_packages }}"
 
-- name: listen
+- name: <dovecot> listen
   lineinfile:
     backup: yes
     path: /etc/dovecot/dovecot.conf
@@ -13,7 +13,7 @@
     regexp: '^listen'
     line: 'listen = *'
 
-- name: protocols
+- name: <dovecot> protocols
   lineinfile:
     backup: no
     path: /etc/dovecot/dovecot.conf
@@ -22,25 +22,25 @@
     regexp: '^protocols'
     line: 'protocols = imap pop3'
 
-- name: disable_plaintext_auth
+- name: <dovecot> disable_plaintext_auth
   lineinfile:
     backup: yes
     path: /etc/dovecot/conf.d/10-auth.conf
     state: present
     insertafter: '#disable_plaintext_auth'
     regexp: '^disable_plaintext_auth'
-    line: 'disable_plaintext_auth = yes'
+    line: 'disable_plaintext_auth = no'
 
-- name: auth_mechanisms
+- name: <dovecot> auth_mechanisms
   lineinfile:
     backup: no
     path: /etc/dovecot/conf.d/10-auth.conf
     state: present
     insertafter: 'auth_mechanisms'
     regexp: '^auth_mechanisms'
-    line: 'auth_mechanisms = digest-md5 cram-md5'
+    line: 'auth_mechanisms = digest-md5 cram-md5 plain login'
 
-- name: mail_location
+- name: <dovecot> mail_location
   lineinfile:
     backup: yes
     path: /etc/dovecot/conf.d/10-mail.conf
@@ -49,22 +49,46 @@
     regexp: '^mail_location'
     line: 'mail_location = maildir:~/Maildir'
 
-- name: create dhparams
-  shell: openssl dhparam -out dhparams.pem 2048
+- name: <dovecot> create dummy cert
+  shell: /etc/pki/tls/certs/make-my-dummy-cert dovecot.pem
   args:
-    chdir: /etc/dovecot/
-    creates: /etc/dovecot/dhparams.pem
+    chdir: /etc/pki/tls/certs
+    creates: /etc/pki/tls/certs/dovecot.pem
 
-- name: ssl
+- name: <dovecot> modify permission of dummy cert
+  file:
+    path: /etc/pki/tls/certs/dovecot.pem
+    state: file
+    owner: root
+    group: root
+    mode: 0644
+
+- name: <dovecot> ssl
   lineinfile:
     backup: yes
     path: /etc/dovecot/conf.d/10-ssl.conf
     state: present
     insertafter: '#ssl *='
     regexp: '^ssl *='
-    line: 'ssl = no'
+    line: 'ssl = yes'
 
-- name: ssl_dh_parameters_length
+- name: <dovecot> ssl cert
+  lineinfile:
+    backup: no
+    path: /etc/dovecot/conf.d/10-ssl.conf
+    state: present
+    regexp: '^ssl_cert'
+    line: 'ssl_cert = </etc/pki/tls/certs/dovecot.pem'
+
+- name: <dovecot> ssl priv key
+  lineinfile:
+    backup: no
+    path: /etc/dovecot/conf.d/10-ssl.conf
+    state: present
+    regexp: '^ssl_key'
+    line: 'ssl_key = </etc/pki/tls/certs/dovecot.pem'
+
+- name: <dovecot> ssl_dh_parameters_length
   lineinfile:
     backup: no
     path: /etc/dovecot/conf.d/10-ssl.conf
@@ -73,16 +97,7 @@
     regexp: '^ssl_dh_parameters_length'
     line: 'ssl_dh_parameters_length = 2048'
 
-- name: ssl_dh
-  lineinfile:
-    backup: no
-    path: /etc/dovecot/conf.d/10-ssl.conf
-    state: present
-    insertafter: '#ssl_dh *='
-    regexp: '^ssl_dh *='
-    line: 'ssl_dh = </etc/dovecot/dhparams.pem'
-
-- name: ssl_protocols
+- name: <dovecot> ssl_protocols
   lineinfile:
     backup: no
     path: /etc/dovecot/conf.d/10-ssl.conf
@@ -91,7 +106,7 @@
     regexp: '^ssl_protocols'
     line: 'ssl_protocols = !SSLv2 !SSLv3'
 
-- name: ssl_cipher_list
+- name: <dovecot> ssl_cipher_list
   lineinfile:
     backup: no
     path: /etc/dovecot/conf.d/10-ssl.conf
@@ -100,7 +115,7 @@
     regexp: '^ssl_cipher_list'
     line: 'ssl_cipher_list = ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA'
 
-- name: ssl_prefer_server_ciphers
+- name: <dovecot> ssl_prefer_server_ciphers
   lineinfile:
     backup: no
     path: /etc/dovecot/conf.d/10-ssl.conf
@@ -109,10 +124,12 @@
     regexp: '^ssl_prefer_server_ciphers'
     line: 'ssl_prefer_server_ciphers = yes'
 
-- service:
+- name: <dovecot> start dovecot
+  service:
     name: dovecot
     state: started
 
-- service:
+- name: <dovecot> enable dovecot
+  service:
     name: dovecot
     enabled: yes

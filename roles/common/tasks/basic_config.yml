@@ -1,104 +1,44 @@
-- name: set locale
+- name: <OS> set locale
   shell: localectl set-locale {{ lang }}
 
-- name: set timezone
+- name: <OS> set timezone
   shell: timedatectl set-timezone {{ timezone }}
 
-- name: set hostname
+- name: <OS> set hostname
   shell: hostnamectl set-hostname {{ hostname }}
 
-- name: iptables config
-  template:
-    src: templates/iptables.j2
-    dest: /etc/sysconfig/iptables
-    owner: root
-    group: root
-    mode: 0600
-
-- name: monitorix title
-  lineinfile:
-    backup: yes
-    path: /etc/monitorix/monitorix.conf
-    state: present
-    regexp: '^title ='
-    line: 'title = {{ hostname }}'
-
-- name: monitorix hostname
-  lineinfile:
-    backup: yes
-    path: /etc/monitorix/monitorix.conf
-    state: present
-    regexp: '^hostname ='
-    line: 'hostname = {{ hostname }}'
-
-- name: monitorix network iface
-  replace:
-    dest: /etc/monitorix/monitorix.conf
-    regexp: 'eth0'
-    replace: '{{ wan_interface }}'
-
-- name: disable ipv6
+- name: <OS> disable ipv6
   sysctl:
     name: net.ipv6.conf.all.disable_ipv6
     value: 1
     state: present
 
-- name: disable ipv6
+- name: <OS> disable ipv6
   sysctl:
     name: net.ipv6.conf.default.disable_ipv6
     value: 1
     state: present
 
-- name: disable forwarding
+- name: <OS> disable forwarding
   sysctl:
     name: net.ipv4.conf.all.forwarding
     value: 0
     state: present
 
-- name: disable forwading
+- name: <OS> disable forwading
   sysctl:
     name: net.ipv4.conf.default.forwarding
     value: 0
     state: present
 
-- name: disable selinux
+- name: <OS> disable selinux
   lineinfile:
     backup: yes
     path: /etc/selinux/config
     regexp: '^SELINUX='
     line: 'SELINUX=permissive'
 
-- name: bash history size
-  lineinfile:
-    backup: yes
-    path: /etc/profile
-    state: present
-    regexp: '^HISTSIZE='
-    line: 'HISTSIZE={{ histsize }}'
-
-- name: bash history format
-  lineinfile:
-    backup: no
-    path: /etc/profile
-    state: present
-    regexp: '^HISTTIMEFORMAT='
-    line: 'HISTTIMEFORMAT="{{ histfmt }}"'
-
-- name: bash history conf
-  lineinfile:
-    backup: no
-    path: /etc/profile
-    state: present
-    line: 'unset HISTCONTROL'
-
-- name: bash history conf
-  lineinfile:
-    backup: no
-    path: /etc/profile
-    state: present
-    line: 'export HISTSIZE HISTTIMEFORMAT'
-
-- name: sudo without password
+- name: <OS> sudo without password
   lineinfile:
     backup: yes
     path: /etc/sudoers
@@ -106,19 +46,19 @@
     regexp: '^%wheel\s'
     line: '%wheel ALL=(ALL) NOPASSWD: ALL'
 
-- name: add normal user
+- name: <OS> add normal user
   user:
     name: "{{ normal_user }}"
     shell: /bin/bash
     group: wheel
 
-- name: setup authorized_keys of the normal user
+- name: <OS> setup authorized_keys of the normal user
   authorized_key:
     user: "{{ normal_user }}"
     state: present
     key: "{{ ssh_pub_key }}"
 
-- name: disable ssh login by root
+- name: <sshd> disable ssh login by root
   lineinfile:
     backup: yes
     path: /etc/ssh/sshd_config
@@ -126,7 +66,7 @@
     regexp: '^PermitRootLogin'
     line: 'PermitRootLogin no'
 
-- name: disable password auth for ssh
+- name: <sshd> disable password auth for ssh
   lineinfile:
     backup: no
     path: /etc/ssh/sshd_config
@@ -134,42 +74,50 @@
     regexp: '^PasswordAuthentication'
     line: 'PasswordAuthentication no'
 
-- name: stop firewalld
+- name: <firewalld> stop firewalld
   service:
     name: firewalld
     state: stopped
 
-- name: disable firewalld
+- name: <firewalld> disable firewalld
   service:
     name: firewalld
     enabled: no
 
-- name: start iptables-service
+- name: <iptables> set default rules
+  template:
+    backup: yes
+    src: templates/iptables.j2
+    dest: /etc/sysconfig/iptables
+    owner: root
+    group: root
+    mode: 0644
+
+- name: <iptables> start iptables-service
   service:
     name: iptables
     state: started
 
-- name: enable iptables-service
+- name: <iptables> enable iptables-service
   service:
     name: iptables
     enabled: yes
 
-- name: start chronyd
+- name: <ntp> start chronyd
   service:
     name: chronyd
     state: started
 
-- name: enable chronyd
+- name: <ntp> enable chronyd
   service:
     name: chronyd
     enabled: yes
 
-- name: start monitorix
-  service:
-    name: monitorix
-    state: started
-
-- name: enable monitorix
-  service:
-    name: monitorix
-    enabled: yes
+- name: <openssl> modify make-dummy-cert
+  template:
+    backup: yes
+    src: templates/make-my-dummy-cert.j2
+    dest: /etc/pki/tls/certs/make-my-dummy-cert
+    owner: root
+    group: root
+    mode: 0755

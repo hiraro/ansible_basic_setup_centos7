@@ -3,3 +3,9 @@
 
 - name: basic config
   include: basic_config.yml
+
+- name: bash_profile
+  include: bash_profile.yml
+
+- name: monitorix
+  include: monitorix.yml

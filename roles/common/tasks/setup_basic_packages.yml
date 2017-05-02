@@ -1,15 +1,15 @@
-- name: update all
+- name: <OS> update all anyway
   yum:
     name: '*'
     state: latest
 
-- name: install something
+- name: <OS> install something anyway
   yum:
     name: "{{ item }}"
     state: present
   with_items: "{{ basic_packages }}"
 
-- name: install something
+- name: <OS> install something anyway
   yum:
     name: "{{ item }}"
     state: present

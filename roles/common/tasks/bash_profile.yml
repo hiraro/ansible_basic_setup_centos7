@@ -1,0 +1,29 @@
+- name: <bash> bash history size
+  lineinfile:
+    backup: yes
+    path: /etc/profile
+    state: present
+    regexp: '^HISTSIZE='
+    line: 'HISTSIZE={{ histsize }}'
+
+- name: <bash> bash history format
+  lineinfile:
+    backup: no
+    path: /etc/profile
+    state: present
+    regexp: '^HISTTIMEFORMAT='
+    line: 'HISTTIMEFORMAT="{{ histfmt }}"'
+
+- name: <bash> bash history conf
+  lineinfile:
+    backup: no
+    path: /etc/profile
+    state: present
+    line: 'unset HISTCONTROL'
+
+- name: <bash> bash history conf
+  lineinfile:
+    backup: no
+    path: /etc/profile
+    state: present
+    line: 'export HISTSIZE HISTTIMEFORMAT'

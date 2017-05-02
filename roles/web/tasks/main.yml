@@ -1,6 +1,9 @@
 - name: setup nginx
   include: nginx.yml
 
+- name: setup php-fpm
+  include: php-fpm.yml
+
 - name: iptables http
   lineinfile:
     backup: yes

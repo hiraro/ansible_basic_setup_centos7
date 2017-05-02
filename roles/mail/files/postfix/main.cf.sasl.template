@@ -1,3 +1,3 @@
 smtpd_sasl_auth_enable = yes
-smtpd_sasl_security_options = noanonymous, noplaintext
+smtpd_sasl_security_options = noanonymous
 broken_sasl_auth_clients = yes
