@@ -40,6 +40,15 @@
     group: root
     mode: 0644
 
+- name: <nginx> nginx_status.conf
+  template:
+    backup: yes
+    src: templates/nginx_status.conf.j2
+    dest: /etc/nginx/default.d/nginx_status.conf
+    owner: root
+    group: root
+    mode: 0644
+
 - name: <nginx> create dummy cert
   shell: /etc/pki/tls/certs/make-my-dummy-cert nginx.pem
   args:
