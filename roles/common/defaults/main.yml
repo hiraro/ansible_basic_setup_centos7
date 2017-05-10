@@ -17,6 +17,7 @@ basic_packages:
   - chrony
   - iptables-services
   - sysstat
+  - expect
 basic_packages_epel:
   - nkf
   - monitorix
