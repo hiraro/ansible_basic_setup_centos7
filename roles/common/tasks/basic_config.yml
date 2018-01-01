@@ -75,11 +75,13 @@
     line: 'PasswordAuthentication no'
 
 - name: <firewalld> stop firewalld
+  ignore_errors: yes
   service:
     name: firewalld
     state: stopped
 
 - name: <firewalld> disable firewalld
+  ignore_errors: yes
   service:
     name: firewalld
     enabled: no
@@ -94,21 +96,25 @@
     mode: 0644
 
 - name: <iptables> start iptables-service
+  ignore_errors: yes
   service:
     name: iptables
     state: started
 
 - name: <iptables> enable iptables-service
+  ignore_errors: yes
   service:
     name: iptables
     enabled: yes
 
 - name: <ntp> start chronyd
+  ignore_errors: yes
   service:
     name: chronyd
     state: started
 
 - name: <ntp> enable chronyd
+  ignore_errors: yes
   service:
     name: chronyd
     enabled: yes
