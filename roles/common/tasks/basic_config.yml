@@ -11,6 +11,25 @@
 - name: <OS> set timezone
   shell: timedatectl set-timezone {{ timezone }}
 
+- name: <OS> preserve_hostname
+  ignore_errors: yes
+  lineinfile:
+    backup: yes
+    path: /etc/cloud/cloud.cfg
+    regexp: '^preserve_hostname:'
+    line: 'preserve_hostname: true'
+
+- name: <OS> set hostname
+  lineinfile:
+    backup: yes
+    path: /etc/hostname
+    regexp: '^HOSTNAME='
+    line: 'HOSTNAME={{ hostname }}'
+
+- name: <OS> set hostname
+  ignore_errors: yes
+  shell: [ -f /etc/hostname ] && echo {{ timezone }} > /etc/hostname
+  
 - name: <OS> set hostname
   shell: hostnamectl set-hostname {{ hostname }}
 
