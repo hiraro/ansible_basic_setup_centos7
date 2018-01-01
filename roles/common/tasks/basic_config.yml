@@ -20,18 +20,26 @@
     line: 'preserve_hostname: true'
 
 - name: <OS> set hostname
+  ignore_errors: yes
   lineinfile:
     backup: yes
-    path: /etc/hostname
+    path: /etc/sysconfig/network
     regexp: '^HOSTNAME='
     line: 'HOSTNAME={{ hostname }}'
 
 - name: <OS> set hostname
   ignore_errors: yes
-  shell: [ -f /etc/hostname ] && echo {{ timezone }} > /etc/hostname
+  shell: "[ -f /etc/hostname ] && echo {{ timezone }} > /etc/hostname"
   
 - name: <OS> set hostname
   shell: hostnamectl set-hostname {{ hostname }}
+
+- name: <OS> disable ipv6
+  lineinfile:
+    backup: yes
+    path: /etc/sysconfig/network
+    regexp: '^NETWORKING_IPV6='
+    line: 'NETWORKING_IPV6=no'
 
 - name: <OS> disable ipv6
   sysctl:
