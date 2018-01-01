@@ -18,6 +18,9 @@ basic_packages:
   - iptables-services
   - sysstat
   - expect
+  - libselinux-python
+  - libselinux-utils
+  - libselinux
 basic_packages_epel:
   - nkf
   - monitorix
