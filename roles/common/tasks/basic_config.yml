@@ -1,3 +1,10 @@
+- name: <OS> disable selinux
+  lineinfile:
+    backup: yes
+    path: /etc/selinux/config
+    regexp: '^SELINUX='
+    line: 'SELINUX=disabled'
+    
 - name: <OS> set locale
   shell: localectl set-locale {{ lang }}
 
@@ -30,13 +37,6 @@
     name: net.ipv4.conf.default.forwarding
     value: 0
     state: present
-
-- name: <OS> disable selinux
-  lineinfile:
-    backup: yes
-    path: /etc/selinux/config
-    regexp: '^SELINUX='
-    line: 'SELINUX=permissive'
 
 - name: <OS> sudo without password
   lineinfile:
